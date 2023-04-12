@@ -1,61 +1,92 @@
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
+import java.util.*;
 
+/**
+ * This class
+ */
 public class KeyValueStore {
-private HashMap<Integer, Integer> keyValueMap = null;
-	
-	public KeyValueStore(){
-		keyValueMap = new HashMap<Integer, Integer>();
-		for(int i = 1 ; i <= Constants.MAP_SIZE ; i++){
+	private static Logger LOGGER = LogManager.getLogger(KeyValueStore.class.getName());
+	private HashMap<Integer, Integer> keyValueMap;
+
+	/**
+	 * Generate key value pairs
+	 */
+	public KeyValueStore() {
+		keyValueMap = new HashMap<>();
+
+		for (int i = 1; i <= Constants.MAP_SIZE ; i++){
 			keyValueMap.put(i, getValue(i));
 		}
 	}
-	
-	
-	private static int getValue(int key){
-		return key*key;
+
+	/**
+	 * Get the value according to key input.
+	 * @param key the key of key-value store.
+	 * @return the value according to the key.
+	 */
+	private static int getValue(int key) {
+		int val = key * key;
+		LOGGER.info("The value is: " + val);
+
+		return val;
 	}
 
-	
+	/**
+	 * Returns the key value.
+	 * @param key key value.
+	 * @return key value.
+	 */
 	public String getKey(int key) {
-		String response  = "Returning value : "+ keyValueMap.get(key)
-				+" for the key : " + key + " from the store";
-		System.out.println(response + " at : " 
-		+ Constants.FORMATTER.format(new Date().getTime()));
-		return response;
+		String res = "The key is: " + key;
+		LOGGER.info(res);
+
+		return res;
 	}
-	
-		public String putKey(int key) {
-		String response  = "Added key : " + key + " to the store";
+
+	/**
+	 * Put request to add key value pair to the map
+	 * @param key key
+	 * @return
+	 */
+	public String put(int key) {
+		String res  = "Added key : " + key;
 		keyValueMap.put(key, getValue(key));
-		System.out.println(response + " at : " 
-		+ Constants.FORMATTER.format(new Date().getTime()));
-		return response;
+
+		LOGGER.info(res);
+		return res;
 	}
-	
+
+	/**
+	 *
+	 * @param key
+	 * @return
+	 */
 	public String deleteKey(int key) {
-		String response  = "Deleted key : " + key + 
-		        			" from the store";
+		String res  = "Deleted key: " + key;
 		Set<Integer> set = keyValueMap.keySet();
 	    Iterator<Integer> itr = set.iterator();
-	    while (itr.hasNext())
-	    {
+
+	    while (itr.hasNext()) {
 	        Integer obj = itr.next();
 	        if (obj.equals(key)) {
-		        	itr.remove();
-		        	System.out.println(response+" at :" 
-		        	+ Constants.FORMATTER.format(new Date().getTime()));
-		        	break;
+				itr.remove();
+				LOGGER.info(res);
+				break;
 			}
 	    }
-	    return response;
-	}	
-	
-	public boolean checkAction(int key, int action){
-		//If get the action is 1, put then action is 2 and delete then action is 3
+
+	    return res;
+	}
+
+	/**
+	 *
+	 * @param key
+	 * @param action
+	 * @return
+	 */
+	public boolean checkAction(int key, int action) {
 		switch(action) {
 		case 1:if(keyValueMap.containsKey(key))
 				return true;				

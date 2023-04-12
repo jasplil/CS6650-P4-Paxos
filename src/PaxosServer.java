@@ -52,7 +52,7 @@ public class PaxosServer implements KeyStoreInterface{
 
 	@Override
 	public String commit(int key, int action) 
-			throws RemoteException, SocketTimeoutException  {
+			throws RemoteException {
 		return learner.commit(key, action);			
 	}
 }

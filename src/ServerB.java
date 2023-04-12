@@ -1,34 +1,31 @@
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
 /**
- * Server2
- * 
- * 
- *
+ * This class is a replica server.
  */
-public class ServerB extends PaxosServer{
+public class ServerB extends PaxosServer {
+	private static Logger LOGGER = LogManager.getLogger(ServerB.class.getName());
 
 	public ServerB(int serverNumber) throws RemoteException {
 		super(serverNumber);
 	}
 
-	public static void main(String args[]) throws Exception{
-    	
-		
+	public static void main(String[] args) {
 		try {
 		    ServerB server = new ServerB(2);
-		    KeyStoreInterface stub = (KeyStoreInterface) 
-		    		UnicastRemoteObject.exportObject(server, 0); 
-		    Registry registry = LocateRegistry.createRegistry(Constants.SERVER2_PORT_NO);  
+		    KeyStoreInterface stub = (KeyStoreInterface) UnicastRemoteObject.exportObject(server, 0);
+		    Registry registry = LocateRegistry.createRegistry(Constants.SERVER2_PORT_NUM);
 		    registry.bind(Constants.SERVER2, stub);
-	
-		    System.out.println("ServerB ready");
+
+			LOGGER.info("Server B is ready");
 		} catch (Exception e) {
-			System.out.println("Server exception: " + e.toString());
+			LOGGER.debug("Server B error: " + e);
 		}
-		
-	    }
+	}
 }
