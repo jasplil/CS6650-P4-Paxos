@@ -9,19 +9,13 @@ import org.apache.logging.log4j.LogManager;
 public class Acceptor extends KeyValueStore implements Runnable {
 	private static Logger LOGGER = LogManager.getLogger(Acceptor.class.getName());
 
-	private static int proposalId;
 	private static int promisedId = (int) 1e9;
-	private boolean active;
 	private int serverNumber;
 
-	public void setProposalId(int proposalId) {
-		Acceptor.proposalId = proposalId;
-	}
-
-	public void start() {
-		active = true;
-	}
-
+	/**
+	 * Set the number of server.
+	 * @param serverNumber number of server.
+	 */
 	public void setServerNumber(int serverNumber) {
 		this.serverNumber = serverNumber;
 	}
@@ -42,13 +36,13 @@ public class Acceptor extends KeyValueStore implements Runnable {
 	 * Whether the is ID the largest it has seen so far.
 	 * If yes, reply with an ACCEPTED message and send ACCEPTED(ID, VALUE) to all learners.
 	 * if no, do not respond.
-	 * @param proposalId
+	 * @param proposalId proposal id from proposer.
 	 * @param key key value sent by client
-	 * @param action // TODO: add comment for action
+	 * @param action request type.
 	 * @return Whether the server send ACCEPTED message or not
 	 */
-	public boolean accept(int proposalId, int key, int action) {
-		return check(proposalId, key, action);
+	public boolean accepted(int proposalId, int key, int action) {
+		return checkAccepted(proposalId, key, action);
 	}
 
 	/**
@@ -76,13 +70,19 @@ public class Acceptor extends KeyValueStore implements Runnable {
 		return false;
 	}
 
-	private boolean check(int proposalId, int key, int action) {
+	/**
+	 * Decides whether to accept the proposal.
+	 * @param proposalId proposal id sent by proposer.
+	 * @param key key value sent by client.
+	 * @param action type of request sent by client.
+	 * @return whether to accept the proposal.
+	 */
+	private boolean checkAccepted(int proposalId, int key, int action) {
 		failServer();
 
-		if (Acceptor.proposalId > proposalId) return false;
-
-		if (super.checkAction(key, action)) {
-			setProposalId(proposalId);
+		if (promisedId > proposalId) {
+			return false;
+		} else if (super.checkAction(key, action)) {
 			return true;
 		}
 
@@ -94,7 +94,6 @@ public class Acceptor extends KeyValueStore implements Runnable {
 	 */
 	public void failServer() {
 		try {
-			// Randomly set a server to "fail"
 			if (((int)((Math.random() * Constants.NUMBER_OF_SERVERS) + 1)) == serverNumber) {
 				LOGGER.info("Server " + serverNumber + " going to sleep");
 				Thread.sleep(1000);

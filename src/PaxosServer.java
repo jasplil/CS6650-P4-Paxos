@@ -7,9 +7,9 @@ public class PaxosServer implements PaxosInterface {
 	private Acceptor acceptor;
 
 	/**
-	 * Initiates paxos server
-	 * @param serverNumber
-	 * @throws RemoteException
+	 * Initiates paxos server.
+	 * @param serverNumber current server number.
+	 * @throws RemoteException exception during the execution of a remote method call.
 	 */
 	public PaxosServer(int serverNumber) throws RemoteException {
 		proposer = new Proposer();
@@ -18,14 +18,13 @@ public class PaxosServer implements PaxosInterface {
 
 		proposer.start();
 		learner.start();
-		acceptor.start();
 		acceptor.setServerNumber(serverNumber);
 	}
 
 	/**
-	 *
-	 * @param key
-	 * @return
+	 * Get key-value pair from store.
+	 * @param key key value from client.
+	 * @return get result.
 	 */
 	@Override
 	public String get(int key) {
@@ -33,30 +32,30 @@ public class PaxosServer implements PaxosInterface {
 	}
 
 	/**
-	 *
-	 * @param key
-	 * @return
+	 * Put key-value pair from store.
+	 * @param key key value from client.
+	 * @return put result.
 	 */
 	@Override
-	public String put(int key){
+	public String put(int key) {
 		return proposer.propose(key, 2);
 	}
 
 	/**
-	 *
-	 * @param key
-	 * @return
+	 * Delete key-value pair from store
+	 * @param key key value from client.
+	 * @return deleted result.
 	 */
 	@Override
-	public String delete(int key){
+	public String delete(int key) {
 		return proposer.propose(key, 3);
 	}
 
 	/**
 	 * Send Prepare(n) message to (at least) a majority of acceptors.
-	 * @param proposalId unique id for each proposal
-	 * @return
-	 * @throws RemoteException
+	 * @param proposalId unique id for each proposal.
+	 * @return Whether there are PROMISE responses from a majority of acceptors.
+	 * @throws RemoteException exception during the execution of a remote method call.
 	 */
 	@Override
 	public boolean sendPrepare(int proposalId) throws RemoteException {
@@ -64,28 +63,27 @@ public class PaxosServer implements PaxosInterface {
 	}
 
 	/**
-	 *
-	 * @param proposalId
-	 * @param key
-	 * @param action
-	 * @return
-	 * @throws RemoteException
+	 * The proposer tells all the acceptors (that are live) what value to accept.
+	 * @param proposalId proposal id from proposer.
+	 * @param key key value from client.
+	 * @param action request type from client.
+	 * @return Whether the consensus was reached.
+	 * @throws RemoteException exception during the execution of a remote method call.
 	 */
 	@Override
 	public boolean accept(int proposalId, int key, int action) throws RemoteException {
-		return acceptor.accept(proposalId, key, action);
+		return acceptor.accepted(proposalId, key, action);
 	}
 
 	/**
-	 *
-	 * @param key
-	 * @param action
-	 * @return
-	 * @throws RemoteException
+	 * Send the value to learners to commit the message.
+	 * @param key key value from client.
+	 * @param action request type from client.
+	 * @return Whether the value was committed.
+	 * @throws RemoteException exception during the execution of a remote method call.
 	 */
 	@Override
-	public String commit(int key, int action) 
-			throws RemoteException {
+	public String commit(int key, int action) throws RemoteException {
 		return learner.commit(key, action);			
 	}
 }

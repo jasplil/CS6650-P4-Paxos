@@ -30,8 +30,8 @@ public class Proposer extends KeyValueStore implements Runnable {
 	 * Phase I - sends Prepare(n) message to acceptors.
 	 * Phase II - if consensus reached, send Accept() message
 	 * @param key key value sent from client
-	 * @param action
-	 * @return
+	 * @param action request type from client.
+	 * @return Consensus result of the different phases.
 	 */
 	public synchronized String propose(int key, int action) {
 		proposalId++;
@@ -40,58 +40,36 @@ public class Proposer extends KeyValueStore implements Runnable {
 		Map<String, String> serverMap = ServerHelper.getMap();
 		int count = 0;
 
-		try {
-			for (Map.Entry<String, String> entry : serverMap.entrySet()) {
-				try {
-					registry = LocateRegistry.getRegistry(entry.getValue(), ServerHelper.getPortNumber(entry.getKey()));
-					PaxosInterface stub = (PaxosInterface) registry.lookup(entry.getKey());
+		// Send PREPARE message
+		for (Map.Entry<String, String> entry : serverMap.entrySet()) {
+			try {
+				registry = LocateRegistry.getRegistry(entry.getValue(), ServerHelper.getPortNumber(entry.getKey()));
+				PaxosInterface stub = (PaxosInterface) registry.lookup(entry.getKey());
 
-					// Send PREPARE message
-					if (stub.sendPrepare(proposalId)) count++;
-				} catch (SocketTimeoutException socketTimeoutException) {
-					// Continue the process despite one server times out
-					continue;
-				} catch (RemoteException remoteException){
-					// Continue the process despite one server is not reachable
-					continue;
-				}
+				// Send PREPARE message
+				if (stub.sendPrepare(proposalId)) count++;
+			} catch (SocketTimeoutException | RemoteException | NotBoundException exception) {
+				// Continue the process despite one server times out
+				continue;
 			}
+		}
 
-			// Proceed only if the majority of servers agreed
-			if (count > (Constants.NUMBER_OF_SERVERS / 2)) {
-				sendPropose(count, key, action, res, serverMap);
-			} else {
-				res = "Consensus could not be reached as only " + count + " servers replied to the prepare request";
-				LOGGER.info(res);
-				return res;
-			}
+		// Proceed only if the majority of servers agreed
+		if (count > (Constants.NUMBER_OF_SERVERS / 2)) {
+			sendPropose(count, key, action, res, serverMap);
+		} else {
+			res = "Consensus could not be reached as only " + count + " servers replied to the prepare request";
+			LOGGER.info(res);
+			return res;
+		}
 
-			// Proceed only if the majority of servers agreed
-			if (count > (Constants.NUMBER_OF_SERVERS / 2)) {
-				LOGGER.info(count + " Servers accepted");
-
-				for (Map.Entry<String, String> entry : serverMap.entrySet()) {
-					try {
-						registry = LocateRegistry.getRegistry(entry.getValue(), ServerHelper.getPortNumber(entry.getKey()));
-						PaxosInterface stub = (PaxosInterface) registry.lookup(entry.getKey());
-
-						// Ask all servers to commit as quorum number has accepted
-						res = stub.commit(key, action);
-					} catch (SocketTimeoutException se) {
-						//Continue the process even if one server times out
-						continue;
-					} catch (RemoteException re) {
-						//Continue the process even if one server was not reachable
-						continue;
-					}
-				}
-			} else {
-				res = "Consensus could not be reached as only " + count + " servers replied to the accept request";
-				LOGGER.info(res);
-				return res;
-			}
-		} catch (NotBoundException exception) {
-			LOGGER.info("Remote Exception " + exception);
+		// Proceed only if the majority of servers agreed
+		if (count > (Constants.NUMBER_OF_SERVERS / 2)) {
+			sendCommit(count, key, action, res, serverMap);
+		} else {
+			res = "Consensus could not be reached as only " + count + " servers replied to the accept request";
+			LOGGER.info(res);
+			return res;
 		}
 
 		return res;
@@ -101,13 +79,13 @@ public class Proposer extends KeyValueStore implements Runnable {
 	 * The proposer tells all the acceptors (that are live) what value to accept.
 	 * @param count number of agreed servers.
 	 * @param key key value from client.
-	 * @param action // TODO: check actions
+	 * @param action request type sent from client.
 	 * @param res final response message of whether the consensus was reached or not.
 	 * @param serverMap the pre-populated key-value store.
 	 * @return final response message of whether the consensus was reached or not.
 	 */
 	public synchronized String sendPropose(int count, int key, int action, String res, Map<String, String>serverMap) {
-		LOGGER.info(count + " Servers agreed");
+		LOGGER.info(count + " Servers promised");
 		count = 0;
 
 		for (Map.Entry<String, String> entry : serverMap.entrySet()) {
@@ -115,13 +93,43 @@ public class Proposer extends KeyValueStore implements Runnable {
 				registry = LocateRegistry.getRegistry(entry.getValue(), ServerHelper.getPortNumber(entry.getKey()));
 				PaxosInterface stub = (PaxosInterface) registry.lookup(entry.getKey());
 
-				if (stub.accept(proposalId, key, action)) count ++;
-			} catch (SocketTimeoutException se) {
+				if (stub.accept(proposalId, key, action)) count++;
+			} catch (SocketTimeoutException | RemoteException | NotBoundException exception) {
 				// Continue the process even if one server times out
 				continue;
-			} catch (RemoteException | NotBoundException re) {
-				// Continue the process even if one server was not reachable
+			}
+		}
+
+		return res;
+	}
+
+	/**
+	 * Send the ACCEPTED message to learners to commit.
+	 * @param count number of agreed servers.
+	 * @param key key value from client.
+	 * @param action request type sent from client.
+	 * @param res final response message of whether the consensus was reached or not.
+	 * @param serverMap the pre-populated key-value store.
+	 * @return value of committed message.
+	 */
+	public synchronized String sendCommit(int count, int key, int action, String res, Map<String, String>serverMap) {
+		LOGGER.info(count + " Servers accepted");
+
+		for (Map.Entry<String, String> entry : serverMap.entrySet()) {
+			try {
+				registry = LocateRegistry.getRegistry(entry.getValue(), ServerHelper.getPortNumber(entry.getKey()));
+				PaxosInterface stub = (PaxosInterface) registry.lookup(entry.getKey());
+
+				// Ask all servers to commit as quorum number has accepted
+				res = stub.commit(key, action);
+			} catch (SocketTimeoutException se) {
+				//Continue the process even if one server times out
 				continue;
+			} catch (RemoteException re) {
+				//Continue the process even if one server was not reachable
+				continue;
+			} catch (NotBoundException exception) {
+				throw new IllegalArgumentException();
 			}
 		}
 

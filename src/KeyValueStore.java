@@ -27,8 +27,7 @@ public class KeyValueStore {
 	 * @return the value according to the key.
 	 */
 	private static int calValue(int key) {
-		int val = key * key;
-		return val;
+		return key * key;
 	}
 
 	/**
@@ -46,7 +45,7 @@ public class KeyValueStore {
 	/**
 	 * Put request to add key value pair to the map
 	 * @param key key
-	 * @return
+	 * @return put result.
 	 */
 	public String put(int key) {
 		String res  = "Added key : " + key;
@@ -58,8 +57,8 @@ public class KeyValueStore {
 
 	/**
 	 * Delete request to delete the key value pair
-	 * @param key
-	 * @return
+	 * @param key key value from client.
+	 * @return delete result.
 	 */
 	public String delete(int key) {
 		String res  = "Deleted key: " + key;
@@ -69,10 +68,10 @@ public class KeyValueStore {
 	}
 
 	/**
-	 *
-	 * @param key
-	 * @param action
-	 * @return
+	 * Check for the key value pair in the store.
+	 * @param key key sent from client.
+	 * @param action request type from client.
+	 * @return whether the key value pair is in the store.
 	 */
 	public boolean checkAction(int key, int action) {
 		switch (action) {
