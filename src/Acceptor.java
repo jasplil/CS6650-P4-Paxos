@@ -71,8 +71,12 @@ public class Acceptor extends KeyValueStore implements Runnable {
 		if (promisedId == (int) 1e9) {
 			promisedId = proposalId;
 		} else {
-			LOGGER.info("CHECK THIS PROMISED ID: " + promisedId);
+			if (proposalId > promisedId) {
+				promisedId = proposalId;
+			}
 		}
+
+		LOGGER.info("CHECK THIS PROMISED ID: " + promisedId);
 
 		if (Acceptor.proposalId > proposalId) return false;
 
