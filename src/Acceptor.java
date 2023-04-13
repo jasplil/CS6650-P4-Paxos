@@ -1,80 +1,89 @@
-import java.net.SocketTimeoutException;
-import java.rmi.RemoteException;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
-public class Acceptor extends KeyValueStore implements Runnable{
+import java.util.HashSet;
+import java.util.Iterator;
 
-	private static int myproposalId;
-	
+/**
+ *
+ */
+public class Acceptor extends KeyValueStore implements Runnable {
+	private static Logger LOGGER = LogManager.getLogger(Acceptor.class.getName());
+
+	private static int proposalId;
+	private static int promisedId = (int) 1e9;
 	private boolean active;
-	
 	private int serverNumber;
 
-	public int getMyproposalId() {
-		return myproposalId;
+	public void setProposalId(int proposalId) {
+		Acceptor.proposalId = proposalId;
 	}
 
-	public void setMyproposalId(int myproposalId) {
-		Acceptor.myproposalId = myproposalId;
-	}
-
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean isAlive) {
-		this.active = isAlive;
-	}
-	
-	public void start(){
+	public void start() {
 		active = true;
-	}
-	
-	public void kill(){
-		active = false;
-	}
-	
-	public boolean accept(int proposalId, int key, int action) throws RemoteException,
-	SocketTimeoutException{
-		return check(proposalId, key, action);
-	}
-	
-	public boolean prepare(int proposalId, int key, int action) throws RemoteException,
-	SocketTimeoutException{
-		return check(proposalId, key, action);
-	}
-
-	private boolean check(int proposalId, int key, int action) throws RemoteException
-	, SocketTimeoutException{
-		//Randomly put a server to sleep
-		try{
-			if(((int)((Math.random()*Constants.NUMBER_OF_SERVERS)+1)) == serverNumber){
-				System.out.println("Server"+serverNumber+" going to sleep");
-				Thread.sleep(10000);
-			}
-		} catch (InterruptedException ie){
-			
-		}
-		if(proposalId < myproposalId){
-			return false;
-		}
-		if(super.checkAction(key, action)){
-			setMyproposalId(proposalId);
-			return true;
-		}
-		return false;
-	}
-
-	public int getServerNumber() {
-		return serverNumber;
 	}
 
 	public void setServerNumber(int serverNumber) {
 		this.serverNumber = serverNumber;
 	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		
+	/**
+	 * On receiving prepare message, check for proposal id.
+	 * If promised to ignore the request, than continue to ignore such request.
+	 * If not, now promises to ignore any request with a proposal number lower than n
+	 * and replies with promise
+	 * @param proposalId
+	 * @param key
+	 * @param action
+	 * @return
+	 */
+	public boolean promise(int proposalId, int key, int action) {
+		return check(proposalId, key, action);
 	}
+
+	public boolean accept(int proposalId, int key, int action) {
+		return check(proposalId, key, action);
+	}
+
+	/**
+	 * On receiving Prepare message:
+	 * Check for whether it previously promised to ignore requests with this proposal number.
+	 * If so: ignores the message
+	 * If not: it now promises to ignore any request with a proposal number lower than this proposal number,
+	 * and replies with Promise message.
+	 * @param proposalId
+	 * @param key
+	 * @param action
+	 * @return
+	 */
+	private boolean check(int proposalId, int key, int action) {
+		// TODO: replies with promise(promiseId)
+		try {
+			// Randomly set a server to "fail"
+			if (((int)((Math.random()*Constants.NUMBER_OF_SERVERS)+1)) == serverNumber) {
+				LOGGER.info("Server" + serverNumber + " going to sleep");
+				Thread.sleep(10000);
+			}
+		} catch (InterruptedException ie){
+			// TODO: add exception handle
+		}
+
+		if (promisedId == (int) 1e9) {
+			promisedId = proposalId;
+		} else {
+			LOGGER.info("CHECK THIS PROMISED ID: " + promisedId);
+		}
+
+		if (Acceptor.proposalId > proposalId) return false;
+
+		if (super.checkAction(key, action)) {
+			setProposalId(proposalId);
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public void run() {}
 }

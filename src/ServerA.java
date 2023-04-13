@@ -9,7 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 /**
  * This class is a replica server.
  */
-public class ServerA extends PaxosServer{
+public class ServerA extends PaxosServer {
 	private static Logger LOGGER = LogManager.getLogger(ServerA.class.getName());
 
 	public ServerA(int serverNumber) throws RemoteException {
@@ -19,7 +19,7 @@ public class ServerA extends PaxosServer{
 	public static void main(String[] args) {
 		try {
 			ServerA server = new ServerA(1);
-		    KeyStoreInterface stub = (KeyStoreInterface) UnicastRemoteObject.exportObject(server, 0);
+		    PaxosInterface stub = (PaxosInterface) UnicastRemoteObject.exportObject(server, 0);
 		    Registry registry = LocateRegistry.createRegistry(Constants.SERVER1_PORT_NUM);
 		    registry.bind(Constants.SERVER1, stub);
 

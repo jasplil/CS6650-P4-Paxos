@@ -44,7 +44,7 @@ public class ServerHelper {
 	 * @param value server name
 	 * @return server port
 	 */
-	public static int getPortNumber (String value) {
+	public static int getPortNumber(String value) {
 		switch(value) {
 			case Constants.SERVER1:
 				return Constants.SERVER1_PORT_NUM;

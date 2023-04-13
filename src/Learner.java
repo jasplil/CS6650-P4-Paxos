@@ -1,20 +1,29 @@
 /**
- * Learner is responsible to maintain the state of the server and handles the commits to it
+ * Learner learns the agreed upon value
+ * It is responsible to maintain the state of the server and handles the commits to it
  */
 public class Learner extends KeyValueStore implements Runnable{
-
 	public void start() {}
-	
+
+	/**
+	 *
+	 * @param key
+	 * @param action
+	 * @return
+	 */
 	public String commit(int key, int action) {
 		String response = "";
 
 		// If the consensus is met then go ahead and perform the commit
 		switch(action) {
-			case 1: response = super.getKey(key);
+			case 1:
+				response = super.getKey(key);
 					break;
-			case 2: response = super.put(key);
+			case 2:
+				response = super.put(key);
 					break;
-			case 3: response = super.delete(key);
+			case 3:
+				response = super.delete(key);
 					break;
 		}
 
@@ -22,7 +31,5 @@ public class Learner extends KeyValueStore implements Runnable{
 	}
 
 	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-	}
+	public void run() {}
 }

@@ -6,9 +6,7 @@ import java.text.SimpleDateFormat;
  * name, server number and map size
  */
 public interface Constants {
-
-	/** Delete: The formatter for Date and timestamp **/
-//	DateFormat FORMATTER = new SimpleDateFormat("HH:mm:ss:SSS");
+	int[] ports = {1234, 2345, 3451, 1112, 1113};
 
 	/**
 	 * The RMI Name for ServerA
@@ -38,27 +36,27 @@ public interface Constants {
 	/**
 	 * Port number of serverA
 	 */
-	int SERVER1_PORT_NUM = 12345;
+	int SERVER1_PORT_NUM = ports[0];
 
 	/**
 	 * Port number of serverB
 	 */
-	int SERVER2_PORT_NUM = 12346;
+	int SERVER2_PORT_NUM = ports[1];
 
 	/**
 	 * Port number of serverC
 	 */
-	int SERVER3_PORT_NUM = 12347;
+	int SERVER3_PORT_NUM = ports[2];
 
 	/**
 	 * Port number of serverD
 	 */
-	int SERVER4_PORT_NUM = 12348;
+	int SERVER4_PORT_NUM = ports[3];
 
 	/**
 	 * Port number of serverE
 	 */
-	int SERVER5_PORT_NUM = 12349;
+	int SERVER5_PORT_NUM = ports[4];
 
 	/**
 	 * Size of the map in keystore

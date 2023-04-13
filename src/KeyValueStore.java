@@ -8,16 +8,16 @@ import java.util.*;
  */
 public class KeyValueStore {
 	private static Logger LOGGER = LogManager.getLogger(KeyValueStore.class.getName());
-	private HashMap<Integer, Integer> keyValueMap;
+	private HashMap<Integer, Integer> map;
 
 	/**
-	 * Generate key value pairs
+	 * Set prepopulate client key value pairs
 	 */
 	public KeyValueStore() {
-		keyValueMap = new HashMap<>();
+		map = new HashMap<>();
 
 		for (int i = 1; i <= Constants.MAP_SIZE ; i++){
-			keyValueMap.put(i, getValue(i));
+			map.put(i, calValue(i));
 		}
 	}
 
@@ -26,10 +26,8 @@ public class KeyValueStore {
 	 * @param key the key of key-value store.
 	 * @return the value according to the key.
 	 */
-	private static int getValue(int key) {
+	private static int calValue(int key) {
 		int val = key * key;
-		LOGGER.info("The value is: " + val);
-
 		return val;
 	}
 
@@ -52,30 +50,20 @@ public class KeyValueStore {
 	 */
 	public String put(int key) {
 		String res  = "Added key : " + key;
-		keyValueMap.put(key, getValue(key));
+		map.put(key, calValue(key));
 
 		LOGGER.info(res);
 		return res;
 	}
 
 	/**
-	 *
+	 * Delete request to delete the key value pair
 	 * @param key
 	 * @return
 	 */
 	public String delete(int key) {
 		String res  = "Deleted key: " + key;
-		Set<Integer> set = keyValueMap.keySet();
-	    Iterator<Integer> itr = set.iterator();
-
-	    while (itr.hasNext()) {
-	        Integer obj = itr.next();
-	        if (obj.equals(key)) {
-				itr.remove();
-				LOGGER.info(res);
-				break;
-			}
-	    }
+		map.remove(key);
 
 	    return res;
 	}
@@ -87,14 +75,18 @@ public class KeyValueStore {
 	 * @return
 	 */
 	public boolean checkAction(int key, int action) {
-		switch(action) {
-		case 1:if(keyValueMap.containsKey(key))
+		switch (action) {
+		case 1:
+			if (map.containsKey(key))
+				return true;
+		case 2:
+			if (!map.containsKey(key))
 				return true;				
-		case 2:if(!keyValueMap.containsKey(key))
-				return true;				
-		case 3:if(keyValueMap.containsKey(key))
+		case 3:
+			if(map.containsKey(key))
 				return true;				
 		}
+
 		return false;
 	}
 }

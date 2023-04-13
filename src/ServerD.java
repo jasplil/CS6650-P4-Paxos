@@ -19,7 +19,7 @@ public class ServerD extends PaxosServer {
 	public static void main(String[] args) {
 		try {
 		    ServerD server = new ServerD(4);
-		    KeyStoreInterface stub = (KeyStoreInterface) UnicastRemoteObject.exportObject(server, 0);
+		    PaxosInterface stub = (PaxosInterface) UnicastRemoteObject.exportObject(server, 0);
 		    Registry registry = LocateRegistry.createRegistry(Constants.SERVER4_PORT_NUM);
 		    registry.bind(Constants.SERVER4, stub);
 	
