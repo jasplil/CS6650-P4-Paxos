@@ -63,7 +63,7 @@ public class KeyValueStore {
 	 * @param key
 	 * @return
 	 */
-	public String deleteKey(int key) {
+	public String delete(int key) {
 		String res  = "Deleted key: " + key;
 		Set<Integer> set = keyValueMap.keySet();
 	    Iterator<Integer> itr = set.iterator();

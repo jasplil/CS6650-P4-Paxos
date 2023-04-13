@@ -14,7 +14,7 @@ public class Learner extends KeyValueStore implements Runnable{
 					break;
 			case 2: response = super.put(key);
 					break;
-			case 3: response = super.deleteKey(key);
+			case 3: response = super.delete(key);
 					break;
 		}
 
