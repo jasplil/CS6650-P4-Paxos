@@ -28,15 +28,12 @@ public interface PaxosInterface extends Remote {
 	String delete(int key) throws RemoteException;
 
 	/**
-	 *
-	 * @param proposalId
-	 * @param key
-	 * @param action
+	 * Send Prepare(n) message to (at least) a majority of acceptors.
+	 * @param proposalId unique id for each proposal
 	 * @return
 	 * @throws RemoteException
-	 * @throws SocketTimeoutException
 	 */
-	boolean prepare(int proposalId, int key, int action) throws RemoteException, SocketTimeoutException;
+	boolean sendPrepare(int proposalId) throws RemoteException, SocketTimeoutException;
 
 	/**
 	 *

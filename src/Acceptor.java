@@ -1,11 +1,10 @@
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
-import java.util.HashSet;
-import java.util.Iterator;
-
 /**
- *
+ * This class is for the Acceptor. It accepts certain proposed values from
+ * proposers and let proposers know if something else was accepted.
+ * A response from an acceptor represents a vote for a particular proposal.
  */
 public class Acceptor extends KeyValueStore implements Runnable {
 	private static Logger LOGGER = LogManager.getLogger(Acceptor.class.getName());
@@ -28,55 +27,57 @@ public class Acceptor extends KeyValueStore implements Runnable {
 	}
 
 	/**
-	 * On receiving prepare message, check for proposal id.
-	 * If promised to ignore the request, than continue to ignore such request.
-	 * If not, now promises to ignore any request with a proposal number lower than n
-	 * and replies with promise
-	 * @param proposalId
-	 * @param key
-	 * @param action
-	 * @return
+	 * On receiving PREPARE message, check for proposal id.
+	 * Whether the ID is bigger than any round it has previously received.
+	 * If yes, store the ID number, respond with a PROMISE message.
+	 * If not, do not respond.
+	 * @param proposalId proposal id sent by proposer
+	 * @return Whether to respond to the PREPARE message.
 	 */
-	public boolean promise(int proposalId, int key, int action) {
-		return check(proposalId, key, action);
+	public boolean promise(int proposalId) {
+		return checkPromise(proposalId);
 	}
 
+	/**
+	 * Whether the is ID the largest it has seen so far.
+	 * If yes, reply with an ACCEPTED message and send ACCEPTED(ID, VALUE) to all learners.
+	 * if no, do not respond.
+	 * @param proposalId
+	 * @param key key value sent by client
+	 * @param action // TODO: add comment for action
+	 * @return Whether the server send ACCEPTED message or not
+	 */
 	public boolean accept(int proposalId, int key, int action) {
 		return check(proposalId, key, action);
 	}
 
 	/**
-	 * On receiving Prepare message:
+	 * On receiving PREPARE message:
 	 * Check for whether it previously promised to ignore requests with this proposal number.
 	 * If so: ignores the message
 	 * If not: it now promises to ignore any request with a proposal number lower than this proposal number,
-	 * and replies with Promise message.
-	 * @param proposalId
-	 * @param key
-	 * @param action
-	 * @return
+	 * and replies with PROMISE message.
+	 * @param proposalId proposal id sent by proposer.
+	 * @return Whether to reply with PROMISE message or not.
 	 */
-	private boolean check(int proposalId, int key, int action) {
-		// TODO: replies with promise(promiseId)
-		try {
-			// Randomly set a server to "fail"
-			if (((int)((Math.random()*Constants.NUMBER_OF_SERVERS)+1)) == serverNumber) {
-				LOGGER.info("Server" + serverNumber + " going to sleep");
-				Thread.sleep(10000);
-			}
-		} catch (InterruptedException ie){
-			// TODO: add exception handle
-		}
+	private boolean checkPromise(int proposalId) {
+		failServer();
 
 		if (promisedId == (int) 1e9) {
 			promisedId = proposalId;
+			return true;
 		} else {
 			if (proposalId > promisedId) {
 				promisedId = proposalId;
+				return true;
 			}
 		}
 
-		LOGGER.info("CHECK THIS PROMISED ID: " + promisedId);
+		return false;
+	}
+
+	private boolean check(int proposalId, int key, int action) {
+		failServer();
 
 		if (Acceptor.proposalId > proposalId) return false;
 
@@ -86,6 +87,22 @@ public class Acceptor extends KeyValueStore implements Runnable {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Randomly set server to sleep for 1,000 milliseconds.
+	 */
+	public void failServer() {
+		try {
+			// Randomly set a server to "fail"
+			if (((int)((Math.random() * Constants.NUMBER_OF_SERVERS) + 1)) == serverNumber) {
+				LOGGER.info("Server " + serverNumber + " going to sleep");
+				Thread.sleep(1000);
+			}
+		} catch (InterruptedException ie) {
+			LOGGER.debug(ie);
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	@Override

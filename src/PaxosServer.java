@@ -55,14 +55,12 @@ public class PaxosServer implements PaxosInterface {
 	/**
 	 * Send Prepare(n) message to (at least) a majority of acceptors.
 	 * @param proposalId unique id for each proposal
-	 * @param key
-	 * @param action
 	 * @return
 	 * @throws RemoteException
 	 */
 	@Override
-	public boolean prepare(int proposalId, int key, int action) throws RemoteException {
-		return acceptor.promise(proposalId, key, action);
+	public boolean sendPrepare(int proposalId) throws RemoteException {
+		return acceptor.promise(proposalId);
 	}
 
 	/**
