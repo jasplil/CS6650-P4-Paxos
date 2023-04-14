@@ -1,6 +1,10 @@
-import java.net.SocketTimeoutException;
 import java.rmi.RemoteException;
 
+/**
+ * This class achieves consensus among a set of servers that communicate.
+ * One or more clients proposes a value to Paxos,
+ * and we have consensus when a majority of systems running. Paxos agrees on one of the proposed values.
+ */
 public class PaxosServer implements PaxosInterface {
 	private Proposer proposer;
 	private Learner learner;

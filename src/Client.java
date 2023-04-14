@@ -7,7 +7,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 /**
- * Client class using RMI for RPC communication.
+ * This is the client class using RMI for RPC communication.
  */
 public class Client {
 	private static Logger LOGGER = LogManager.getLogger(Client.class.getName());
@@ -27,7 +27,7 @@ public class Client {
 				LOGGER.info("Client sent DELETE request" + stub.delete(deleteNums[i]));
 			}
 		} catch(RemoteException re) {
-			System.out.println("Unable to find the RMI Server");
+			System.out.println("RMI Server not found");
 		} catch(NotBoundException ne) {
 			System.out.println("RMI Server not bound");
 		}

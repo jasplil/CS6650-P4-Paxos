@@ -61,7 +61,7 @@ public class KeyValueStore {
 	 * @return delete result.
 	 */
 	public String delete(int key) {
-		String res  = "Deleted key: " + key;
+		String res  = "Deleted key: " + key + " value: " + map.get(key);
 		map.remove(key);
 		LOGGER.info(res);
 

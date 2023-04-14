@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * This class provides helper functions for 5 replica servers.
+ * This class provides helper functions for 5 replica servers:
  * ServerA, ServerB, ServerC, ServerD, ServerE.
  */
 public class ServerHelper {
@@ -20,7 +20,7 @@ public class ServerHelper {
 
 		try {
 			Properties properties = new Properties();
-			// Read in ports
+			// Read in hosts
 			InputStream in = ServerHelper.class.getResourceAsStream("servers.properties");
 			properties.load(in);			
 			Enumeration<?> e = properties.propertyNames();

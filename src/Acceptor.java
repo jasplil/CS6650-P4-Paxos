@@ -8,9 +8,8 @@ import org.apache.logging.log4j.LogManager;
  */
 public class Acceptor extends KeyValueStore implements Runnable {
 	private static Logger LOGGER = LogManager.getLogger(Acceptor.class.getName());
-
 	private static int promisedId = (int) 1e9;
-	private int serverNumber;
+	private static int serverNumber;
 
 	/**
 	 * Set the number of server.
