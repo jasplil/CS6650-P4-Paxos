@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import java.util.*;
 
 /**
- * This class
+ * This class provide the remote methods for client's PUT, GET and DELETE requests.
  */
 public class KeyValueStore {
 	private static Logger LOGGER = LogManager.getLogger(KeyValueStore.class.getName());
@@ -36,7 +36,7 @@ public class KeyValueStore {
 	 * @return key value.
 	 */
 	public String getKey(int key) {
-		String res = "The key is: " + key;
+		String res = "GET key: " + key + " value: " + map.get(key);
 		LOGGER.info(res);
 
 		return res;
@@ -48,10 +48,10 @@ public class KeyValueStore {
 	 * @return put result.
 	 */
 	public String put(int key) {
-		String res  = "Added key : " + key;
+		String res  = "PUT key: " + key + " value: " + calValue(key);
 		map.put(key, calValue(key));
-
 		LOGGER.info(res);
+
 		return res;
 	}
 
@@ -63,6 +63,7 @@ public class KeyValueStore {
 	public String delete(int key) {
 		String res  = "Deleted key: " + key;
 		map.remove(key);
+		LOGGER.info(res);
 
 	    return res;
 	}

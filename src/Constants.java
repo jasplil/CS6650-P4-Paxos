@@ -1,6 +1,3 @@
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
 /**
  * This class provides the pre-populated server port, server
  * name, server number and map size

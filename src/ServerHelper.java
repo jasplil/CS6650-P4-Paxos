@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * This class provides helper functions for 5 replica servers
+ * This class provides helper functions for 5 replica servers.
  * ServerA, ServerB, ServerC, ServerD, ServerE.
  */
 public class ServerHelper {
