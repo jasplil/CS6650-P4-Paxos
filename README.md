@@ -1,13 +1,21 @@
 # Paxos Project
-Open the terminal on your computer.
-Navigate to the directory where the ServerA.jar file is located using the "cd" command.
 
-1) Type "java -jar" in the terminal, followed by a space.
-2) Drag and drop the ServerA.jar file into the terminal window.
-3) Press "Enter" to run the ServerA.jar file. Repeat steps 2-5 for each of the ServerB, ServerC, ServerD, and ServerE jar files.
+This README provides instructions on how to run the Paxos project, which consists of ServerA, ServerB, ServerC, ServerD, ServerE, and a client application.
 
-Once all five servers are running, navigate to the directory where the Client.jar file is located using the "cd" command.
+## Prerequisites
 
-1) Type "java -jar" in the terminal, followed by a space.
-2) Drag and drop the Client.jar file into the terminal window.
-3) Press "Enter" to run the Client.jar file and connect to the servers.
+Before running the Paxos project, ensure you have the following installed on your computer:
+
+1. Java Development Kit (JDK) - Make sure you have Java installed, and the `java` command is accessible from the terminal.
+
+## Getting Started
+
+1. Clone or download the Paxos project from the repository.
+
+2. Open the terminal on your computer.
+
+3. Navigate to the directory where the `ServerA.jar` file is located using the `cd` command.
+
+4. To run `ServerA`, type the following command in the terminal and press Enter:
+
+   java -jar ServerA.jar
